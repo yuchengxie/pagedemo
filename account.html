@@ -39,26 +39,35 @@
                        value="1118hfRMRrJMgSCoV9ztyPcjcgcMZ1zThvqRDLUw3xCYkZwwTAbJ5o" />
                 <a id="search" class="btn btn-success">搜索</a>
             </form>
-
         </div>
     </div>
 </nav>
 <!--nav-->
-
 <div class="container content">
-    <!--<div class="col-md-2">-->
-    <!--<input type="date" style="color:red">-->
-
-    <!--</div>-->
+    <p id="account"></p>
+    <hr>
     <div class="col-md-1"></div>
     <div class="col-md-10">
-        <table class="table table-striped table-hover table-responsive t">
+
+        <!--<table class="table table-striped table-hover table-responsive t">-->
+        <!--<tr>-->
+        <!--<th class="h_th">高度</th>-->
+        <!--<th class="h_th">时间</th>-->
+        <!--<th class="h_th">交易数量</th>-->
+        <!--<th class="h_th">矿工</th>-->
+        <!--<th class="h_th">难度</th>-->
+        <!--</tr>-->
+        <!--<tbody id="tbody">-->
+
+        <!--</tbody>-->
+        <!--</table>-->
+
+        <table class="table table-responsive table-striped table-hover table-responsive t">
             <tr>
+                <th class="h_th">序号</th>
                 <th class="h_th">高度</th>
-                <th class="h_th">时间</th>
-                <th class="h_th">交易数量</th>
-                <th class="h_th">矿工</th>
-                <th class="h_th">难度</th>
+                <th class="h_th">UOCK</th>
+                <th class="h_th">金额</th>
             </tr>
             <tbody id="tbody">
 
@@ -66,59 +75,83 @@
         </table>
     </div>
     <div class="col-md-1"></div>
+
+
 </div>
+
 </body>
+
 </html>
 
-<!--curl -d "hi=123,456" http://localhost:3001/get_block-->
 <script>
+    var get_url = getUrl();
+    var account = get_url[ 'account' ];
+    $('#account').html(account);
+    $('#account').css({
+        'font-size': '17px',
+        'text-align': 'center',
+        'font-weight': 'bold',
+        'color': '#8dcaf1'
+    })
     $.ajax({
         type: 'POST',
-        url: 'http://localhost:3001/get_block',
-        // data: 'hi=123,456,888,999,1000',
-        data: null,
+        url: 'http://localhost:3001/account',
+        data: 'account=' + account,
         success: function (data) {
-            var blocks = data.headers;
-            var heights = data.heights;
+            var found = data.found;
             var tbody = document.getElementById('tbody');
-            for (var i = 0; i<blocks.length; i ++) {
-                var block = blocks[ i ];
-                console.log(block);
-                var tr = buildRow(block, heights[ i ]);
+            console.log(( found.length ));
+            for (var i = 0; i<found.length; i ++) {
+                var tr = buildRow(found[ i ], i);
                 tbody.appendChild(tr);
             }
         },
         dataType: 'json'
     });
 
-    function buildRow(block, height) {
-        if (block == null) return;
+    function buildRow(found, i) {
+        if (found == null) return;
         var tr = document.createElement('tr'),
+            td_no = document.createElement('td'),
             td_height = document.createElement('td'),
-            href_height = document.createElement('a'),
-            td_timestamp = document.createElement('td'),
-            td_tran = document.createElement('td'),
-            td_nonce = document.createElement('td'),
-            td_miner = document.createElement('td');
-        td_height.appendChild(href_height);
-        // td_height.addClass('t_height');
-        td_height.innerText = height;
-        td_height.onclick = function () {
-            console.log('height:', height);
-            self.location = 'blockInfo.html?hi=' + height;
+            td_uock = document.createElement('td'),
+            td_value = document.createElement('td');
+        td_no.innerText = i;
+        td_height.innerText = found.height;
+        td_uock.innerText = found.uock;
+        td_uock.onclick= function(){
+            console.log(this.innerText);
+            self.location = 'uock.html?uock=' + this.innerText;
         };
-        td_timestamp.innerText = block.timestamp;
-        td_tran.innerText = block.txn_count;
-        td_miner.innerText = block.miner;
-        td_nonce.innerText = block.nonce;
+        td_value.innerText = found.value;
+        tr.appendChild(td_no);
         tr.appendChild(td_height);
-        tr.appendChild(td_timestamp);
-        tr.appendChild(td_tran);
-        tr.appendChild(td_miner);
-        tr.appendChild(td_nonce);
+        tr.appendChild(td_uock);
+        tr.appendChild(td_value);
         return tr;
     }
+
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURI(r[ 2 ]);
+        return null;
+    }
+
+    function getUrl() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf('?') != - 1) {
+            var str = url.substr(1);
+            strs = str.split('&');
+            for (var i = 0; i<strs.length; i ++) {
+                theRequest[ strs[ i ].split('=')[ 0 ] ] = unescape(strs[ i ].split('=')[ 1 ]);
+            }
+        }
+        return theRequest;
+    }
 </script>
+
 <style>
 
     .h_th {
@@ -129,10 +162,6 @@
     .t {
         font-size: 15px;
         border-spacing: 30px 30px;
-        /*border-collapse: collapse;*/
-        /*border-spacing: 10px;*/
-        /*border-collapse: separate;*/
-        /*border-spacing: 0px 10px;*/
     }
 
     .h_th {
@@ -151,3 +180,4 @@
         word-break: break-word;
     }
 </style>
+

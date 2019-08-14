@@ -1,0 +1,6 @@
+
+#测试
+curl -d 'account=1118hfRMRrJMgSCoV9ztyPcjcgcMZ1zThvqRDLUw3xCYkZwwTAbJ5o' http://localhost:3001/account
+
+curl -d "hi=123,456" http://localhost:3001/get_block
+curl -d null http://localhost:3001/get_uock

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/nav.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap-maizi.css" />
+    <title>chain</title>
+</head>
+<body>
+<!--nav-->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!--小屏幕导航按钮和logo-->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="index.html" class="navbar-brand">NBC</a>
+        </div>
+        <!--小屏幕导航按钮和logo-->
+        <!--导航-->
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="index.html">区块</a>
+                </li>
+                <li>
+                    <a href="node.html">节点</a>
+                </li>
+            </ul>
+            <form class="navbar-form navbar-right navbar-text">
+                <input class="form-control" size="65" id="inputContent" placeholder="请输入查询内容: 例如地址,哈希"
+                       value="1118hfRMRrJMgSCoV9ztyPcjcgcMZ1zThvqRDLUw3xCYkZwwTAbJ5o" />
+                <a id="search" class="btn btn-success">搜索</a>
+            </form>
+        </div>
+    </div>
+</nav>
+<!--nav-->
+
+<div class="container content">
+    <p id="uock"></p>
+    <hr>
+    <p class="h4">交易信息</p>
+    <div class="col-md-6">
+        <div class="row divlabel">
+            <label class="label1">高度</label>
+            <label class="label2" id="height">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">交易序号</label>
+            <label class="label2" id="serialNo">1</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">锁(lock)</label>
+            <label class="label2" id="lock">1</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">版本</label>
+            <label class="label2">1</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">sig_raw</label>
+            <label class="label2" id="sig_raw">1</label>
+        </div>
+
+        <!--<div id="txIns">-->
+        <div class="row divlabel" id="txIns">
+            <!--<p class="label1"></p>-->
+            <!--<div class="row divlabel2">-->
+            <!--<label class="label1">上一哈希</label>-->
+            <!--<label class="label2">c019001493fc8849b989f6e8771b99acfc2e4948bd1ab6ae67a6146d2505ad5c</label>-->
+            <!--</div>-->
+            <!--<div class="row divlabel2">-->
+            <!--<label class="label1">上一索引值</label>-->
+            <!--<label class="label2">1</label>-->
+            <!--</div>-->
+        </div>
+
+    </div>
+    <!--第二列-->
+    <div class="col-md-6">
+        <div class="row divlabel" id="txOuts">
+            <!--<p class="label1">输出1</p>-->
+            <!--<div class="row divlabel2">-->
+            <!--<label class="label1">金额</label>-->
+            <!--<label class="label2">195.97999</label>-->
+            <!--</div>-->
+            <!--<div class="row divlabel2">-->
+            <!--<label class="label1">锁定脚本</label>-->
+            <!--<label class="label2">OP_DUP OP_HASH512-->
+            <!--eefd5b42c23b43e2a274b40bf3a78eb6dc313ea736346f9a8c4397d904548763fdee00 OP_HASHVERIFY-->
+            <!--OP_CHECKSIG</label>-->
+            <!--</div>-->
+
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>
+
+<script>
+    var get_url = getUrl();
+    console.log(get_url);
+    var uock = get_url[ 'uock' ];
+    $('#uock').html('uock#' + uock);
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost:3001/get_uock',
+        data: 'uock=' + uock,
+        success: function (data) {
+
+            $('#height').html(data.heights[ 0 ]);
+            $('#serialNo').html(data.indexes[ 0 ]);
+            $('#lock').html(data.txns[ 0 ].lock_time);
+            $('#version').html(data.txns[ 0 ].version);
+            $('#sig_raw').html(data.txns[ 0 ].sig_raw);
+
+            var txns = data.txns;
+            for (var k = 0; k<txns.length; k ++) {
+                var txins = txns[ k ].tx_in;
+                console.log(txins);
+                for (var i = 0; i<txins.length; i ++) {
+                    var txin = txins[ i ];
+                    txnIn(i, txin);
+                }
+                var txouts = txns[ k ].tx_out;
+                console.log(txouts);
+
+                for (var j = 0; j<txouts.length; j ++) {
+                    var txout = txouts[ j ];
+                    txnOut(j,txout);
+                }
+            }
+
+        },
+        dataType: 'json'
+    });
+
+    function txnIn(i, txIn) {
+        var txIns = document.getElementById('txIns');
+        var p = document.createElement('p');
+        p.innerHTML = '输入' + i;
+        p.setAttribute('class', 'label1');
+
+        var div1 = document.createElement('div');
+        div1.setAttribute('class', 'row divlabel2');
+        var l1 = document.createElement('label');
+        l1.innerHTML = '上一哈希';
+        l1.setAttribute('class', 'label1');
+        var l2 = document.createElement('label2');
+        l2.innerHTML = txIn.prev_output.hash;
+        l2.setAttribute('class', 'label2');
+        div1.appendChild(l1);
+        div1.appendChild(l2);
+
+        var div2 = document.createElement('div');
+        div2.setAttribute('class', 'row divlabel2');
+        var l3 = document.createElement('label');
+        l3.innerHTML = '上一索引值';
+        l3.setAttribute('class', 'label1');
+        var l4 = document.createElement('label2');
+        l4.innerHTML = txIn.prev_output.index;
+        l4.setAttribute('class', 'label2');
+        div2.appendChild(l3);
+        div2.appendChild(l4);
+
+        txIns.appendChild(p);
+        txIns.appendChild(div1);
+        txIns.appendChild(div2);
+    }
+
+    function txnOut(i,txOut) {
+        //输出
+        var txOuts = document.getElementById('txOuts');
+        var pout1 = document.createElement('p');
+        pout1.innerHTML = '输出' + i;
+        pout1.setAttribute('class', 'label1');
+        txOuts.appendChild(pout1);
+
+        var div_out1 = document.createElement('div');
+        div_out1.setAttribute('class', 'row divlabel2');
+        var out1 = document.createElement('label');
+        out1.innerHTML = '金额';
+        out1.setAttribute('class', 'label1');
+        var out2 = document.createElement('label2');
+        out2.innerHTML = txOut.value;
+        out2.setAttribute('class', 'label2');
+
+        div_out1.appendChild(out1);
+        div_out1.appendChild(out2);
+
+        var div_out2 = document.createElement('div');
+        div_out2.setAttribute('class', 'row divlabel2');
+        var out3 = document.createElement('label');
+        out3.innerHTML = '锁定脚本';
+        out3.setAttribute('class', 'label1');
+        var out4 = document.createElement('label2');
+        out4.innerHTML =  txOut.pk_script;
+        out4.setAttribute('class', 'label2');
+
+        div_out2.appendChild(out3);
+        div_out2.appendChild(out4);
+
+        txOuts.appendChild(div_out1);
+        txOuts.appendChild(div_out2);
+    }
+
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURI(r[ 2 ]);
+        return null;
+    }
+
+    function getUrl() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf('?') != - 1) {
+            var str = url.substr(1);
+            strs = str.split('&');
+            for (var i = 0; i<strs.length; i ++) {
+                theRequest[ strs[ i ].split('=')[ 0 ] ] = unescape(strs[ i ].split('=')[ 1 ]);
+            }
+        }
+        return theRequest;
+    }
+</script>
+
+<style>
+    .divlabel {
+        border-bottom: 1px solid #e2e2e2;
+        margin: 0px 10px;
+        padding: 10px 0px;
+        word-break: break-word
+    }
+
+    .divlabel2 {
+        border-bottom: 1px solid #e2e2e2;
+        margin: 0px 10px 0px 20px;
+        padding: 10px 0px;
+        word-break: break-word
+    }
+
+    .divlabel3 {
+        /*border-bottom: 1px solid #e2e2e2;*/
+        margin: 0px 10px 0px 20px;
+        padding: 10px 0px;
+        word-break: break-word
+    }
+
+    .label1 {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .label2 {
+        float: right;
+        font-size: 15px;
+        color: #777;
+    }
+</style>

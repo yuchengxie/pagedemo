@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/nav.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap-maizi.css" />
+    <title>chain</title>
+</head>
+<body>
+<!--nav-->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!--小屏幕导航按钮和logo-->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="index.html" class="navbar-brand">NBC</a>
+        </div>
+        <!--小屏幕导航按钮和logo-->
+        <!--导航-->
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="index.html">区块</a>
+                </li>
+                <li>
+                    <a href="node.html">节点</a>
+                </li>
+            </ul>
+             <form class="navbar-form navbar-right navbar-text">
+                <input class="form-control" size="65" id="inputContent" placeholder="请输入查询内容: 例如地址,哈希"  value="1118hfRMRrJMgSCoV9ztyPcjcgcMZ1zThvqRDLUw3xCYkZwwTAbJ5o"/>
+                <a id="search" class="btn btn-success">搜索</a>
+            </form>
+        </div>
+    </div>
+</nav>
+<!--nav-->
+<div class="container content">
+    <p id="hi"></p>
+    <hr>
+    <p class="h4">基本信息</p>
+    <div class="col-md-6">
+        <div class="row divlabel">
+            <label class="label1">版本</label>
+            <label class="label2" id="version">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">link_no</label>
+            <label class="label2" id="link_no">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">上一区块</label>
+            <label class="label2" id="prev_block">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">默克尔根</label>
+            <label class="label2" id="merkle_root">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">时间戳</label>
+            <label class="label2" id="timestamp">44553</label>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row divlabel">
+            <label class="label1">bits</label>
+            <label class="label2" id="bits">sdfsdfsdfsdfsdf</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">难度</label>
+            <label class="label2" id="nonce">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">矿工</label>
+            <label class="label2" id="miner">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">Tee签名</label>
+            <label class="label2" id="sig_tee">44553</label>
+        </div>
+        <div class="row divlabel">
+            <label class="label1">交易数量</label>
+            <label class="label2" id="txn_count">44553</label>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+
+</html>
+
+<script>
+    var get_url = getUrl();
+    console.log(get_url);
+    var hi = get_url[ 'hi' ];
+    // var block = get_url[ 'block' ];
+    $('#hi').html('区块#' + hi);
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost:3001/get_block',
+        data: 'hi=' + hi,
+        success: function (data) {
+            var block = data.headers[ 0 ];
+            if (block != null) {
+                console.log('block:', block.version);
+                $('#version').html(block.version);
+                $('#link_no').html(block.link_no);
+                $('#prev_block').html(block.prev_block);
+                $('#merkle_root').html(block.merkle_root);
+                $('#timestamp').html(block.timestamp);
+                $('#miner').html(block.miner);
+                $('#sig_tee').html(block.sig_tee);
+                $('#bits').html(block.bits);
+                $('#txn_count').html(block.txn_count);
+                $('#nonce').html(block.nonce);
+            }
+        },
+        dataType: 'json'
+    });
+
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURI(r[ 2 ]);
+        return null;
+    }
+
+    function getUrl() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf('?') != - 1) {
+            var str = url.substr(1);
+            strs = str.split('&');
+            for (var i = 0; i<strs.length; i ++) {
+                theRequest[ strs[ i ].split('=')[ 0 ] ] = unescape(strs[ i ].split('=')[ 1 ]);
+            }
+        }
+        return theRequest;
+    }
+</script>
+
+<style>
+    .divlabel {
+        border-bottom: 1px solid #e2e2e2;
+        margin: 0px 10px;
+        padding: 10px 0px;
+        word-break: break-word
+    }
+
+    .label1 {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .label2 {
+        float: right;
+        font-size: 15px;
+        color: #777;
+    }
+</style>
